@@ -41,6 +41,7 @@
 		'customNavPrev' : null,
 		'customNavFirst' : null,
 		'customNavLast' : null,
+		'sortable' : true, //Add Ability to Drag to Sort
 		'closable' : true, //Make tabs closable
 		'easing' : '',
 		'easing':'swing', //The easing equation
@@ -63,6 +64,7 @@ $.fn.scrollabletabs = function(options)
 		var o = $.extend({}, settings, typeof options=='object' ? options : {} ),
 			$tabs = $(this).addClass(o.wrapperCssClass+' stMainWrapper'),
 			$ul = $tabs.find('ul.ui-tabs-nav:first'),
+			
 			$lis = $ul.find('li'),
 			$arrowsNav = $('<ol class="stNavMain" />'),
 			$curSelectedTab = $ul.find('.ui-tabs-selected').addClass('stCurrentTab'); //We will use our own css class to detect a selected tab because we might want to scroll without tab being selected
@@ -120,6 +122,9 @@ $.fn.scrollabletabs = function(options)
 			_adjustLeftPosition();
 			//Add events to the navigation buttons
 			_addNavEvents();
+			//Add Ability to Drag to Sort
+			_addSortability();
+			
 			//If tab is selected manually by user than also change the css class
 			$tabs.bind( "tabsshow", function(event, ui) {
 				_updateCurrentTab($(ui.tab).parents('li'));
@@ -287,7 +292,8 @@ $.fn.scrollabletabs = function(options)
 			_callBackFnc(o.onTabScroll,e,$tab)
 			
 			//Finally stop the event
-			e.preventDefault();
+			if (e!=null)	//Fix a random error on initial load.
+				e.preventDefault();
 		}
 		
 		function _addCustomerSelToCollection(col,nav)
@@ -473,6 +479,16 @@ $.fn.scrollabletabs = function(options)
 				//If width not assigned, the hidden tabs width cannot be calculated properly in _adjustLeftPosition
 				.width($thisLi.outerWidth())
 			});
+		}
+		
+		function _addSortability($li)
+		{
+			//if the preference is set allow the tabs to be dragged.
+			if(!o.sortable) 
+				return;
+			
+			var tabPanel = $tabs.find('ul.ui-tabs-nav:first');
+			tabPanel.sortable({ axis: "x", items: 'li[id!=dropdownli]' });
 		}
 		
 		function _getNavPairWidth(single)
